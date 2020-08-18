@@ -1,0 +1,11 @@
+[package]
+name = "espclient"
+version = "0.0.1"
+authors = ["Carlos A. Rueda <carueda@mbari.org>"]
+edition = "2018"
+
+[dependencies]
+bytes = "0.5.6"
+colored = "2.0.0"
+structopt = "0.3"
+rustyline = "6.2.0"
