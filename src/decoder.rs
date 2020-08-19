@@ -16,9 +16,13 @@ impl EspDecoder {
         EspDecoder {
             max_buffer_length,
             buffer: Vec::new(),
-            current_stream: EspStream::Unknown,
+            current_stream: EspStream::Log, // TODO check that Log is appropriate default
             pending_event: None,
         }
+    }
+
+    pub fn get_current_stream(&mut self) -> EspStream {
+        self.current_stream
     }
 
     /// If any, returns next EspEvent, which is composed from internal buffer and given source data;
@@ -26,6 +30,9 @@ impl EspDecoder {
     pub fn decode(&mut self, src: &mut BytesMut) -> Result<Option<EspEvent>, EspError> {
         if let Some(event) = self.pending_event.take() {
             self.pending_event = None;
+            if let EspEvent::Stream(s) = event {
+                self.current_stream = s;
+            }
             return Ok(Some(event));
         }
 
@@ -55,17 +62,18 @@ impl EspDecoder {
                 }
 
                 // stream indicator?
-                _ if 0o200 <= byte && byte <= 0o207 => {
+                0o200 => {} // ignore this one
+                _ if 0o201 <= byte && byte <= 0o207 => {
                     let _ = src.split_to(k + 1);
-                    let stream_event = Some(EspEvent::Stream(EspStream::from(byte)));
+                    let new_stream = EspStream::from(byte);
+                    let stream_event = Some(EspEvent::Stream(new_stream));
                     if buffer_len > 0 {
                         // "queue" this stream event:
                         self.pending_event = stream_event;
                         // and complete currently buffered stuff:
-                        let event = Some(self.complete_line());
-                        self.current_stream = EspStream::from(byte);
-                        return Ok(event);
+                        return Ok(Some(self.complete_line()));
                     } else {
+                        self.current_stream = new_stream;
                         return Ok(stream_event);
                     }
                 }

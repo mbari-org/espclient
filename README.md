@@ -31,79 +31,67 @@ $ cargo build --release
 Have an ESP server running somewhere and then launch the program indicating
 the corresponding `host:port`.
 
-Here's a session with an ESP server running on bufflehead:
+Program usage:
+
+```
+$ espclient --help
+espclient 0.0.1
+ESP Client in Rust
+
+USAGE:
+    espclient [FLAGS] [OPTIONS] <server>
+
+FLAGS:
+    -h, --help       Prints help information
+    -s, --simple     Simple output (by default, show stream multiplexing explicitly)
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cmd <cmd>      Command beginning interactive session [default: showlog 0]
+    -n, --name <name>    My name as client for ESP server's log [default: espclient.rs]
+
+ARGS:
+    <server>    host:port indicating the running ESP server
+```
+
+Here's part of a session with an ESP server running on bufflehead:
 
 ```
 $ espclient bufflehead.shore.mbari.org:7777
 Connected to bufflehead.shore.mbari.org:7777
-Using name: espclient.rs
-
-   line: espclient.rs
- stream: Prompt
+     <Log> | espclient.rs
 -> Cmd.status
-   line: {loadedCartridge: 43,
-   line:  state: :READY,
-   line:  type: :archiveHiBiomass_bac}
- stream: Prompt
+     <Log> | @13:45:23.51 -> Cmd.status
+  <Result> | loadedCartridge: 60,
+  <Result> |  state: :READY,
+  <Result> |  type: :archiveHiBiomass_bac}
 -> Cmd.startFiltering
-   line: :FILTERING
- stream: Prompt
--> Cmd.status
-   line: {loadedCartridge: 43,
-   line:  state: :PRIMING,
-   line:  type: :archiveHiBiomass_bac,
-   line:  volumeFiltered: 0.0}
- stream: Prompt
--> Cmd.status
-   line: {loadedCartridge: 43,
-   line:  state: :PAUSED,
-   line:  type: :archiveHiBiomass_bac,
-   line:  volumeFiltered: 10.0}
- stream: Prompt
--> Cmd.startProcessing
-   line: :PROCESSING
- stream: Prompt
--> Cmd.status
-   line: {loadedCartridge: 43,
-   line:  state: :PROCESSING,
-   line:  type: :archiveHiBiomass_bac,
-   line:  volumeFiltered: 10.0}
- stream: Prompt
--> Cmd.status
-   line: {loadedCartridge: 43,
-   line:  state: :PROCESSED,
-   line:  type: :archiveHiBiomass_bac,
-   line:  volumeFiltered: 10.0}
- stream: Prompt
+     <Log> | 13:45:32.56 -> Cmd.startFiltering
+  <Result> | FILTERING
+     <Log> | 13:45:32.57 <FILTERING> Duration of filtering limited to 2:05:00
+     <Log> | @13:45:32.58 Priming sample loop w/5ml, bypass w/1.5ml
+     <Log> | SamplePump.setPosition! 0ml
+...
+     <Log> | Toroid.seek :clear
+     <Log> | @13:46:20.29 Sampled  10.0ml
 -> Cmd.stop
-   line: :STOPPED
- stream: Prompt
--> slots
-   line: {42..1 => { Type: :archiveHiBiomass_bac,
-   line: 	 State: :dry},
-   line:  [60..57, 55..50, 48] => { Type: :archiveHiBiomass_bac,
-   line: 	 State: :filtering,
-   line: 	 filtered: 10},
-   line:  [46, 45] => { Type: :archiveHiBiomass_bac,
-   line: 	 State: :filtering,
-   line: 	 filtered: 10.0},
-   line:  [56, 49] => { Type: :archiveHiBiomass_bac,
-   line: 	 State: :processed,
-   line: 	 filtered: 10},
-   line:  spare: 10,
-   line:  [47, 44, 43] => { Type: :archiveHiBiomass_bac,
-   line: 	 State: :processed,
-   line: 	 filtered: 10.0}}
- stream: Prompt
+     <Log> | 13:48:42.86 -> Cmd.stop
+...
+     <Log> | Gate.power :main,:OFF
+     <Log> | Safely stopped and ready to power off
+  <Result> | STOPPED
+-> Cmd.status
+     <Log> | 13:48:54.92 -> Cmd.status
+  <Result> | state: :STOPPED}
 ->
 Ctrl-D
 ```
 
-Run `espclient --help` to get a usage message.
-
-
 ## Change log
 
+- 2020-08-19: various adjustments incl improved/simplified prompt handling.
+  TODO fix bug about first character not captured from the first line
+  right after a stream event
 - 2020-08-18: initial functional version
 
 ## Some refs

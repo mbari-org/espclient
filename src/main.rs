@@ -22,6 +22,7 @@ use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 use std::time::Duration;
 
+const PROMPT: &str = "-> ";
 const HISTORY_FILE: &str = "history.txt";
 
 #[derive(StructOpt, Debug)]
@@ -35,6 +36,14 @@ struct Opts {
     /// My name as client for ESP server's log
     #[structopt(short, long, default_value = "espclient.rs")]
     name: String,
+
+    /// Command beginning interactive session
+    #[structopt(short, long, default_value = "showlog 0")]
+    cmd: String,
+
+    /// Simple output (by default, show stream multiplexing explicitly)
+    #[structopt(short, long)]
+    simple: bool,
 }
 
 fn main() {
@@ -48,11 +57,11 @@ fn main() {
 }
 
 fn connected(opts: &Opts, mut stream: TcpStream) {
-    println!("{}", format!("Connected to {}", &opts.server).magenta());
+    let simple = opts.simple;
+    println!("Connected to {}", &opts.server);
     let mut from_server = stream.try_clone().unwrap();
 
     let (done_sender, done_receiver) = mpsc::channel();
-    let (prompt_sender, prompt_receiver) = mpsc::channel();
 
     let from_server_thread = thread::spawn(move || {
         let mut buf = BytesMut::with_capacity(2048);
@@ -78,21 +87,25 @@ fn connected(opts: &Opts, mut stream: TcpStream) {
                     buf.put(&data[0..read_len]);
                     loop {
                         match dec.decode(&mut buf) {
-                            Ok(Some(event)) => match event {
-                                EspEvent::Line(line) => {
-                                    println!("{:>8} {}", "line:".green(), line);
-                                }
-                                EspEvent::Stream(s) => {
-                                    println!(
-                                        "{:>8} {}",
-                                        "stream:".green(),
-                                        format!("{:?}", s).cyan()
-                                    );
-                                    if s == EspStream::Prompt {
-                                        let _ = prompt_sender.send(());
+                            Ok(Some(event)) => {
+                                match event {
+                                    EspEvent::Line(line) => {
+                                        if simple {
+                                            println!("\r{}", line);
+                                        } else {
+                                            let s = dec.get_current_stream();
+                                            println!(
+                                                "\r{:>12} {}",
+                                                format!("<{:?}> |", s).cyan(),
+                                                line
+                                            );
+                                        }
                                     }
+                                    EspEvent::Stream(_) => {}
                                 }
-                            },
+                                print!("\r{}", PROMPT);
+                                let _ = io::stdout().flush();
+                            }
 
                             Ok(None) => break,
 
@@ -102,7 +115,7 @@ fn connected(opts: &Opts, mut stream: TcpStream) {
                 }
 
                 Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
-                    thread::sleep(Duration::from_millis(500));
+                    thread::sleep(Duration::from_millis(200));
                 }
 
                 Err(e) => {
@@ -113,18 +126,11 @@ fn connected(opts: &Opts, mut stream: TcpStream) {
     });
 
     let to_server = &mut stream;
-    stdin_loop(
-        &opts,
-        prompt_receiver,
-        done_sender,
-        to_server,
-        from_server_thread,
-    );
+    stdin_loop(&opts, done_sender, to_server, from_server_thread);
 }
 
 fn stdin_loop(
     opts: &Opts,
-    prompt_receiver: mpsc::Receiver<()>,
     done_sender: mpsc::Sender<()>,
     to_server: &TcpStream,
     from_server_thread: thread::JoinHandle<()>,
@@ -134,26 +140,26 @@ fn stdin_loop(
         println!("{}", "(no previous history)".bright_black());
     }
 
-    println!("{}\n", format!("Using name: {}", opts.name).magenta());
     send_line(&opts.name, to_server);
+    if opts.cmd.trim().len() > 0 {
+        rl.add_history_entry(&opts.cmd);
+        send_line(&opts.cmd, to_server);
+    }
 
     loop {
-        // block until signaled to show prompt:
-        if let Err(e) = prompt_receiver.recv() {
-            println!("error while awaiting prompt indication: {:?}", e);
-            break;
-        }
-
-        let readline = rl.readline("-> ");
+        let readline = rl.readline(PROMPT);
         match readline {
-            Ok(line) if line.trim() == "exit" => {
-                exit("exiting...", done_sender, from_server_thread);
-                break;
-            }
-
             Ok(line) => {
-                rl.add_history_entry(line.as_str());
-                send_line(&line, to_server);
+                let line = line.trim();
+                if line.len() > 0 {
+                    if line == "exit" {
+                        exit("exiting...", done_sender, from_server_thread);
+                        break;
+                    } else {
+                        rl.add_history_entry(line);
+                        send_line(&line, to_server);
+                    }
+                }
             }
 
             Err(ReadlineError::Eof) => {
