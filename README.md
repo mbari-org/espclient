@@ -42,6 +42,7 @@ USAGE:
     espclient [FLAGS] [OPTIONS] <server>
 
 FLAGS:
+    -d, --debug      Summarize raw socket traffic on STDERR
     -h, --help       Prints help information
     -s, --simple     Simple output (by default, show stream multiplexing explicitly)
     -V, --version    Prints version information
@@ -90,8 +91,6 @@ Ctrl-D
 ## Change log
 
 - 2020-08-19: various adjustments incl improved/simplified prompt handling.
-  TODO fix bug about first character not captured from the first line
-  right after a stream event
 - 2020-08-18: initial functional version
 
 ## Some refs

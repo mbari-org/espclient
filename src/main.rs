@@ -44,6 +44,10 @@ struct Opts {
     /// Simple output (by default, show stream multiplexing explicitly)
     #[structopt(short, long)]
     simple: bool,
+
+    /// Summarize raw socket traffic on STDERR
+    #[structopt(short, long)]
+    debug: bool,
 }
 
 fn main() {
@@ -58,6 +62,7 @@ fn main() {
 
 fn connected(opts: &Opts, mut stream: TcpStream) {
     let simple = opts.simple;
+    let debug = opts.debug;
     println!("Connected to {}", &opts.server);
     let mut from_server = stream.try_clone().unwrap();
 
@@ -86,7 +91,7 @@ fn connected(opts: &Opts, mut stream: TcpStream) {
                     // update buffer and decode to ESP events:
                     buf.put(&data[0..read_len]);
                     loop {
-                        match dec.decode(&mut buf) {
+                        match dec.decode(&mut buf, debug) {
                             Ok(Some(event)) => {
                                 match event {
                                     EspEvent::Line(line) => {
@@ -140,10 +145,10 @@ fn stdin_loop(
         println!("{}", "(no previous history)".bright_black());
     }
 
-    send_line(&opts.name, to_server);
+    send_line(&opts.name, to_server, opts.debug);
     if opts.cmd.trim().len() > 0 {
         rl.add_history_entry(&opts.cmd);
-        send_line(&opts.cmd, to_server);
+        send_line(&opts.cmd, to_server, opts.debug);
     }
 
     loop {
@@ -157,7 +162,7 @@ fn stdin_loop(
                         break;
                     } else {
                         rl.add_history_entry(line);
-                        send_line(&line, to_server);
+                        send_line(&line, to_server, opts.debug);
                     }
                 }
             }
@@ -182,13 +187,38 @@ fn stdin_loop(
     rl.save_history(HISTORY_FILE).unwrap();
 }
 
-fn send_line(line: &str, mut to_server: &TcpStream) {
-    to_server.write(&encode_line(&line)).unwrap();
+fn send_line(line: &str, mut to_server: &TcpStream, debug: bool) {
+    let encoded = encode_line(&line);
+    to_server.write(&encoded).unwrap();
     to_server.flush().unwrap();
+    if debug {
+        debug_buffer("SENT", &encoded, false);
+    }
 }
 
 fn exit(msg: &str, done_sender: mpsc::Sender<()>, from_server_thread: thread::JoinHandle<()>) {
     println!("{}", msg.bright_black());
     let _ = done_sender.send(());
     let _ = from_server_thread.join();
+}
+
+pub fn debug_buffer(prefix: &str, buffer: &[u8], add_new_line: bool) {
+    eprintln!(
+        "[{}: {}{}]",
+        prefix,
+        escape(buffer),
+        if add_new_line { "\\n" } else { "" }
+    );
+}
+
+fn escape(v: &[u8]) -> String {
+    v.into_iter()
+        .map(|b| match b {
+            _ if 32u8 <= *b && *b <= 126u8 => format!("{}", *b as char),
+            b'\t' => format!("{}", "\\t"),
+            b'\n' => format!("{}", "\\n"),
+            b'\r' => format!("{}", "\\r"),
+            _ => format!("\\{:03o}", b),
+        })
+        .collect()
 }

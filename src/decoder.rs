@@ -1,3 +1,4 @@
+use crate::debug_buffer;
 use crate::error::*;
 use crate::event::*;
 
@@ -27,7 +28,11 @@ impl EspDecoder {
 
     /// If any, returns next EspEvent, which is composed from internal buffer and given source data;
     /// otherwise, None if no enough data yet to compose such next event.
-    pub fn decode(&mut self, src: &mut BytesMut) -> Result<Option<EspEvent>, EspError> {
+    pub fn decode(
+        &mut self,
+        src: &mut BytesMut,
+        debug: bool,
+    ) -> Result<Option<EspEvent>, EspError> {
         if let Some(event) = self.pending_event.take() {
             self.pending_event = None;
             if let EspEvent::Stream(s) = event {
@@ -42,7 +47,6 @@ impl EspDecoder {
         }
 
         let mut k = 0;
-        let mut buffer_len = self.buffer.len();
         let max_buffer_length = self.max_buffer_length;
 
         loop {
@@ -52,35 +56,39 @@ impl EspDecoder {
 
             let byte = src[k];
             match byte {
-                // line completed?
                 b'\n' => {
+                    let buffer = mem::replace(&mut self.buffer, Vec::new());
+                    if debug {
+                        debug_buffer("RCVD", &buffer, true);
+                    }
+
                     let _ = src.split_to(k + 1);
-                    // do not notify empty lines (at least for now):
-                    if buffer_len > 0 {
-                        return Ok(Some(self.complete_line()));
+                    if buffer.len() > 0 {
+                        // stream indicator?
+                        let pre_byte = buffer[buffer.len() - 1];
+                        if 0o200 <= pre_byte && pre_byte <= 0o207 {
+                            let new_stream = EspStream::from(pre_byte);
+                            let stream_event = Some(EspEvent::Stream(new_stream));
+                            // non-empty contents before stream indicator?
+                            if buffer.len() > 1 {
+                                // "queue" this stream event:
+                                self.pending_event = stream_event;
+                                // and complete currently buffered stuff (modulo stream indicator):
+                                let result = String::from_utf8_lossy(&buffer[0..buffer.len() - 1]);
+                                return Ok(Some(EspEvent::Line(result.to_string())));
+                            } else {
+                                self.current_stream = new_stream;
+                                return Ok(stream_event);
+                            }
+                        } else {
+                            let result = String::from_utf8_lossy(&buffer[..]);
+                            return Ok(Some(EspEvent::Line(result.to_string())));
+                        }
                     }
                 }
 
-                // stream indicator?
-                0o200 => {} // ignore this one
-                _ if 0o201 <= byte && byte <= 0o207 => {
-                    let _ = src.split_to(k + 1);
-                    let new_stream = EspStream::from(byte);
-                    let stream_event = Some(EspEvent::Stream(new_stream));
-                    if buffer_len > 0 {
-                        // "queue" this stream event:
-                        self.pending_event = stream_event;
-                        // and complete currently buffered stuff:
-                        return Ok(Some(self.complete_line()));
-                    } else {
-                        self.current_stream = new_stream;
-                        return Ok(stream_event);
-                    }
-                }
-
-                _ if buffer_len < max_buffer_length => {
+                _ if self.buffer.len() < max_buffer_length => {
                     self.buffer.push(byte);
-                    buffer_len += 1;
                 }
 
                 _ => {
@@ -89,12 +97,6 @@ impl EspDecoder {
             }
             k += 1;
         }
-    }
-
-    fn complete_line(&mut self) -> EspEvent {
-        let buffer = mem::replace(&mut self.buffer, Vec::new());
-        let result = format!("{}", String::from_utf8_lossy(&buffer[..]));
-        EspEvent::Line(result.to_string())
     }
 }
 
@@ -111,7 +113,7 @@ mod tests {
     ) -> Vec<Result<Option<EspEvent>, EspError>> {
         let mut result = Vec::new();
         loop {
-            match dec.decode(bytes) {
+            match dec.decode(bytes, false) {
                 Ok(None) => {
                     break;
                 }
