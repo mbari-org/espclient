@@ -35,7 +35,7 @@ Program usage:
 
 ```
 $ espclient --help
-espclient 0.0.1
+espclient 0.0.2
 ESP Client in Rust
 
 USAGE:
@@ -90,6 +90,11 @@ Ctrl-D
 
 ## Change log
 
+- 2021-04-20: enable colored CLI
+  (just as a quick revisiting of this project on a new computer)
+  
+    ![](espclient-cli.png)
+  
 - 2020-08-19: various adjustments incl improved/simplified prompt handling.
 - 2020-08-18: initial functional version
 

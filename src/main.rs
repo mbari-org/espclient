@@ -12,7 +12,7 @@ use colored::Colorize;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use structopt::clap::crate_version;
+use structopt::clap::{self, crate_version};
 use structopt::StructOpt;
 
 use std::env;
@@ -26,6 +26,7 @@ const PROMPT: &str = "-> ";
 const HISTORY_FILE: &str = "history.txt";
 
 #[derive(StructOpt, Debug)]
+#[structopt(global_setting(clap::AppSettings::ColoredHelp))]
 #[structopt(name = "espclient", about = "ESP Client in Rust")]
 #[structopt(version = crate_version!())]
 struct Opts {
