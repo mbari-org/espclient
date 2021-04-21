@@ -21,15 +21,29 @@ Of course, you can also clone this repo and then run tests, run the program, bui
 
 ```
 $ cargo test
-$ cargo run -- --help
-$ cargo build --release
+   Compiling espclient v...
+    Finished test [unoptimized + debuginfo] target(s) in 0.97s
+     Running target/debug/deps/espclient-134c8ea5e5ff6ed0
+
+running 2 tests
+test encoder::tests::encode_line_tests ... ok
+test decoder::tests::unfinished_line ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```
+
+Others typically:
+
+- `cargo run -- --help`
+- `cargo build --release`
+- `cargo install --path .`
 
 
 ## Running
 
 Have an ESP server running somewhere and then launch the program indicating
-the corresponding `host:port`.
+the corresponding `host:port`, for example: 
+`espclient bufflehead.shore.mbari.org:7777` (see below).
 
 Program usage:
 
@@ -54,6 +68,8 @@ OPTIONS:
 ARGS:
     <server>    host:port indicating the running ESP server
 ```
+
+---
 
 Here's part of a session with an ESP server running on bufflehead:
 
