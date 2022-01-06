@@ -41,7 +41,7 @@ impl EspDecoder {
             return Ok(Some(event));
         }
 
-        if src.len() == 0 {
+        if src.is_empty() {
             // no more data, so nothing new completed of course:
             return Ok(None);
         }
@@ -63,10 +63,10 @@ impl EspDecoder {
                     }
 
                     let _ = src.split_to(k + 1);
-                    if buffer.len() > 0 {
+                    if !buffer.is_empty() {
                         // stream indicator?
                         let pre_byte = buffer[buffer.len() - 1];
-                        if 0o200 <= pre_byte && pre_byte <= 0o207 {
+                        if (0o200..=0o207).contains(&pre_byte) {
                             let new_stream = EspStream::from(pre_byte);
                             let stream_event = Some(EspEvent::Stream(new_stream));
                             // non-empty contents before stream indicator?

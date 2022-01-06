@@ -132,7 +132,7 @@ fn connected(opts: &Opts, mut stream: TcpStream) {
     });
 
     let to_server = &mut stream;
-    stdin_loop(&opts, done_sender, to_server, from_server_thread);
+    stdin_loop(opts, done_sender, to_server, from_server_thread);
 }
 
 fn stdin_loop(
@@ -147,7 +147,7 @@ fn stdin_loop(
     }
 
     send_line(&opts.name, to_server, opts.debug);
-    if opts.cmd.trim().len() > 0 {
+    if !opts.cmd.trim().is_empty() {
         rl.add_history_entry(&opts.cmd);
         send_line(&opts.cmd, to_server, opts.debug);
     }
@@ -157,13 +157,13 @@ fn stdin_loop(
         match readline {
             Ok(line) => {
                 let line = line.trim();
-                if line.len() > 0 {
+                if !line.is_empty() {
                     if line == "exit" {
                         exit("exiting...", done_sender, from_server_thread);
                         break;
                     } else {
                         rl.add_history_entry(line);
-                        send_line(&line, to_server, opts.debug);
+                        send_line(line, to_server, opts.debug);
                     }
                 }
             }
@@ -189,7 +189,7 @@ fn stdin_loop(
 }
 
 fn send_line(line: &str, mut to_server: &TcpStream, debug: bool) {
-    let encoded = encode_line(&line);
+    let encoded = encode_line(line);
     to_server.write_all(&encoded).unwrap();
     to_server.flush().unwrap();
     if debug {
@@ -213,12 +213,12 @@ pub fn debug_buffer(prefix: &str, buffer: &[u8], add_new_line: bool) {
 }
 
 fn escape(v: &[u8]) -> String {
-    v.into_iter()
+    v.iter()
         .map(|b| match b {
             _ if 32u8 <= *b && *b <= 126u8 => format!("{}", *b as char),
-            b'\t' => format!("{}", "\\t"),
-            b'\n' => format!("{}", "\\n"),
-            b'\r' => format!("{}", "\\r"),
+            b'\t' => "\\t".to_string(),
+            b'\n' => "\\n".to_string(),
+            b'\r' => "\\r".to_string(),
             _ => format!("\\{:03o}", b),
         })
         .collect()

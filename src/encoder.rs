@@ -21,9 +21,7 @@ pub fn encode_line(line: &str) -> Vec<u8> {
     }
 
     let mut encoded = vec![0u8; encoded_size];
-    for i in 0..len_no_ln {
-        encoded[i] = bytes[i];
-    }
+    encoded[..len_no_ln].clone_from_slice(&bytes[..len_no_ln]);
     encoded[encoded_size - 2] = b'\0';
     encoded[encoded_size - 1] = b'\n';
 

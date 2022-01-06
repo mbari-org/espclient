@@ -1,18 +1,18 @@
 #[derive(Debug)]
 pub enum EspError {
-    IO(std::io::Error),
+    Io(std::io::Error),
 }
 
 impl From<std::io::Error> for EspError {
     fn from(err: std::io::Error) -> EspError {
-        EspError::IO(err)
+        EspError::Io(err)
     }
 }
 
 impl PartialEq for EspError {
     fn eq(&self, other: &Self) -> bool {
         match (&self, &other) {
-            (EspError::IO(a), EspError::IO(b)) => a.kind() == b.kind(),
+            (EspError::Io(a), EspError::Io(b)) => a.kind() == b.kind(),
         }
     }
 }
@@ -23,7 +23,7 @@ impl PartialEq for EspError {
 impl std::fmt::Display for EspError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match *self {
-            EspError::IO(ref err) => write!(f, "IO error: {}", err),
+            EspError::Io(ref err) => write!(f, "IO error: {}", err),
         }
     }
 }
@@ -31,7 +31,7 @@ impl std::fmt::Display for EspError {
 impl std::error::Error for EspError {
     fn cause(&self) -> Option<&dyn std::error::Error> {
         match *self {
-            EspError::IO(ref err) => Some(err),
+            EspError::Io(ref err) => Some(err),
         }
     }
 }

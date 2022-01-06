@@ -49,7 +49,7 @@ Program usage:
 
 ```
 $ espclient --help
-espclient 0.0.2
+espclient 0.0.3
 ESP Client in Rust
 
 USAGE:
