@@ -190,7 +190,7 @@ fn stdin_loop(
 
 fn send_line(line: &str, mut to_server: &TcpStream, debug: bool) {
     let encoded = encode_line(&line);
-    to_server.write(&encoded).unwrap();
+    to_server.write_all(&encoded).unwrap();
     to_server.flush().unwrap();
     if debug {
         debug_buffer("SENT", &encoded, false);

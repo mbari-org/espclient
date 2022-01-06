@@ -106,6 +106,8 @@ Ctrl-D
 
 ## Change log
 
+- 2022-01-05: enable ci; fix clippy error
+
 - 2021-04-20: enable colored CLI
   (just as a quick revisiting of this project on a new computer)
   
