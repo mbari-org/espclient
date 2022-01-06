@@ -57,7 +57,7 @@ impl EspDecoder {
             let byte = src[k];
             match byte {
                 b'\n' => {
-                    let buffer = mem::replace(&mut self.buffer, Vec::new());
+                    let buffer = mem::take(&mut self.buffer);
                     if debug {
                         debug_buffer("RCVD", &buffer, true);
                     }
