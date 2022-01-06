@@ -1,3 +1,5 @@
+![ci](https://github.com/mbari-org/espclient/actions/workflows/ci.yml/badge.svg)
+
 # ESP Client in Rust
 
 What: A basic ESP client implementation in Rust.
