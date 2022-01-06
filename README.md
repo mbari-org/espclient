@@ -120,6 +120,7 @@ Ctrl-D
 
 ## Some refs
 
+- https://blog.burntsushi.net/rust-error-handling/#the-error-trait
 - https://github.com/jtenner/telnet_codec 
 - https://stjepang.github.io/2020/04/03/why-im-building-a-new-async-runtime.html
-- https://blog.burntsushi.net/rust-error-handling/#the-error-trait
+  ... broken link now. See https://news.ycombinator.com/item?id=25521669
