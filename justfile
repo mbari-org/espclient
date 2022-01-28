@@ -4,7 +4,7 @@ default: test format
 # default + clippy; good to run before committing changes
 all: default clippy
 
-# List recipes (needs `just`)
+# List recipes
 list:
 	@just --list --unsorted
 
@@ -27,3 +27,13 @@ release:
 # Install locally
 install:
 	cargo install --path .
+
+# (cargo install --locked cargo-outdated)
+# Show outdated dependencies
+outdated:
+	cargo outdated --root-deps-only
+
+# (cargo install --locked cargo-udeps)
+# Find unused dependencies
+udeps:
+	cargo +nightly udeps
