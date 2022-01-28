@@ -19,7 +19,7 @@ With `cargo` on your system, you can install `espclient` as follows:
 $ cargo install --git https://github.com/mbari-org/espclient.git
 ```
 
-Of course, you can also clone this repo and then run tests, run the program, build, etc:
+Of course, you can also clone this repo and then run tests, run the program, build, etc.:
 
 ```
 $ cargo test
@@ -34,12 +34,12 @@ test decoder::tests::unfinished_line ... ok
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```
 
-Others typically:
+Other typical commands I run here (see [justfile](justfile)):
 
-- `cargo run -- --help`
-- `cargo build --release`
-- `cargo install --path .`
-
+    just test
+    just clippy
+    just release
+    just install
 
 ## Running
 
@@ -73,48 +73,15 @@ ARGS:
 
 ---
 
-Here's part of a session with an ESP server running on bufflehead:
+This screencast shows a quick a session with an ESP server running on bufflehead:
 
-```
-$ espclient bufflehead.shore.mbari.org:7777
-Connected to bufflehead.shore.mbari.org:7777
-     <Log> | espclient.rs
--> Cmd.status
-     <Log> | @13:45:23.51 -> Cmd.status
-  <Result> | loadedCartridge: 60,
-  <Result> |  state: :READY,
-  <Result> |  type: :archiveHiBiomass_bac}
--> Cmd.startFiltering
-     <Log> | 13:45:32.56 -> Cmd.startFiltering
-  <Result> | FILTERING
-     <Log> | 13:45:32.57 <FILTERING> Duration of filtering limited to 2:05:00
-     <Log> | @13:45:32.58 Priming sample loop w/5ml, bypass w/1.5ml
-     <Log> | SamplePump.setPosition! 0ml
-...
-     <Log> | Toroid.seek :clear
-     <Log> | @13:46:20.29 Sampled  10.0ml
--> Cmd.stop
-     <Log> | 13:48:42.86 -> Cmd.stop
-...
-     <Log> | Gate.power :main,:OFF
-     <Log> | Safely stopped and ready to power off
-  <Result> | STOPPED
--> Cmd.status
-     <Log> | 13:48:54.92 -> Cmd.status
-  <Result> | state: :STOPPED}
-->
-Ctrl-D
-```
+![](img/espclient.rs.gif)
 
 ## Change log
 
+- 2022-01-27: minor general updates
 - 2022-01-05: enable ci; fix clippy error
-
 - 2021-04-20: enable colored CLI
-  (just as a quick revisiting of this project on a new computer)
-  
-    ![](espclient-cli.png)
-  
 - 2020-08-19: various adjustments incl improved/simplified prompt handling.
 - 2020-08-18: initial functional version
 

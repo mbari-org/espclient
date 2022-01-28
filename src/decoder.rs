@@ -120,7 +120,7 @@ mod tests {
                 output => result.push(output),
             }
         }
-        return result;
+        result
     }
 
     #[test]
