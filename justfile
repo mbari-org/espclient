@@ -12,6 +12,10 @@ list:
 test:
 	cargo test
 
+# Run espclient (e.g.:  just run --help)
+run *args='':
+	cargo run -- {{ args }}
+
 # Format source code
 format:
 	cargo fmt -- --check
@@ -25,7 +29,7 @@ release:
 	cargo build --release
 
 # Install locally
-install:
+install: release
 	cargo install --path .
 
 # (cargo install --locked cargo-outdated)
@@ -37,3 +41,7 @@ outdated:
 # Find unused dependencies
 udeps:
 	cargo +nightly udeps
+
+# cargo update
+update:
+	cargo update

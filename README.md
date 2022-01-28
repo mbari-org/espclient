@@ -2,18 +2,14 @@
 
 # ESP Client in Rust
 
-What: A basic ESP client implementation in Rust.
-
-Why: Learn and practice some basic Rust socket programming.
-
-How: Using standard Rust libraries for socket connection and some others.
-Use of more sophisticated libraries (tokio, async-std, etc.) are interesting
-possible variations but not the focus of this exercise, at least initially.
-Feel free to contribute if you are so inclined!
+- What: An ESP client implementation in Rust.
+- Why: Practice some basic Rust socket programming.
+- How: Using standard Rust libraries for socket connection and some others.
 
 ## Installing
 
-With `cargo` on your system, you can install `espclient` as follows:
+With `cargo` on your system, you can install `espclient` directly from
+the repo as follows:
 
 ```
 $ cargo install --git https://github.com/mbari-org/espclient.git
@@ -34,12 +30,15 @@ test decoder::tests::unfinished_line ... ok
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```
 
-Other typical commands I run here (see [justfile](justfile)):
+Common commands I run here (see [justfile](justfile)):
 
     just test
     just clippy
+    just format
     just release
     just install
+    just outdated
+    just update
 
 ## Running
 
@@ -51,7 +50,7 @@ Program usage:
 
 ```
 $ espclient --help
-espclient 0.0.3
+espclient 1.0.0
 ESP Client in Rust
 
 USAGE:
@@ -73,13 +72,11 @@ ARGS:
 
 ---
 
-This screencast shows a quick a session with an ESP server running on bufflehead:
-
-![](img/espclient.rs.gif)
+See a quick demo [here](demo/index.md).
 
 ## Change log
 
-- 2022-01-27: minor general updates
+- 2022-01-27: general updates
 - 2022-01-05: enable ci; fix clippy error
 - 2021-04-20: enable colored CLI
 - 2020-08-19: various adjustments incl improved/simplified prompt handling.
