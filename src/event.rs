@@ -1,5 +1,5 @@
 /// Events from the ESP
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum EspEvent {
     /// A new line has been received
     Line(String),
@@ -8,7 +8,7 @@ pub enum EspEvent {
     Stream(EspStream),
 }
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum EspStream {
     Unknown,
     Result,
