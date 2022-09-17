@@ -12,10 +12,9 @@ use colored::Colorize;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use structopt::clap::{self, crate_version};
-use structopt::StructOpt;
+use clap::Parser;
+use clap::StructOpt;
 
-use std::env;
 use std::io::{self, Read, Write};
 use std::net::TcpStream;
 use std::sync::mpsc::{self, TryRecvError};
@@ -27,8 +26,7 @@ const HISTORY_FILE: &str = "history.txt";
 
 #[derive(StructOpt, Debug)]
 #[structopt(global_setting(clap::AppSettings::ColoredHelp))]
-#[structopt(name = "espclient", about = "ESP Client in Rust")]
-#[structopt(version = crate_version!())]
+#[clap(version, about = "ESP Client in Rust", long_about = None)]
 struct Opts {
     /// host:port indicating the running ESP server
     #[structopt()]
@@ -52,7 +50,7 @@ struct Opts {
 }
 
 fn main() {
-    let opts = Opts::from_args();
+    let opts = Opts::parse();
 
     match TcpStream::connect(&opts.server) {
         Ok(stream) => connected(&opts, stream),
