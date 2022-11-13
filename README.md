@@ -76,6 +76,7 @@ See a quick demo [here](demo/index.md).
 
 ## Change log
 
+- 2022-11-13: do various dep updates and set 2021 edition
 - 2022-09-17: fix #1 to address critical dependabot notification
 - 2022-01-27: general updates
 - 2022-01-05: enable ci; fix clippy error

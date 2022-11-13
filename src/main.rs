@@ -10,7 +10,7 @@ use event::*;
 use bytes::{BufMut, BytesMut};
 use colored::Colorize;
 use rustyline::error::ReadlineError;
-use rustyline::Editor;
+use rustyline::{Editor, Result};
 
 use clap::Parser;
 use clap::StructOpt;
@@ -130,7 +130,7 @@ fn connected(opts: &Opts, mut stream: TcpStream) {
     });
 
     let to_server = &mut stream;
-    stdin_loop(opts, done_sender, to_server, from_server_thread);
+    stdin_loop(opts, done_sender, to_server, from_server_thread).unwrap();
 }
 
 fn stdin_loop(
@@ -138,8 +138,8 @@ fn stdin_loop(
     done_sender: mpsc::Sender<()>,
     to_server: &TcpStream,
     from_server_thread: thread::JoinHandle<()>,
-) {
-    let mut rl = Editor::<()>::new(); // `()` can be used when no completer is required
+) -> Result<()> {
+    let mut rl = Editor::<()>::new()?; // `()` can be used when no completer is required
     if rl.load_history(HISTORY_FILE).is_err() {
         println!("{}", "(no previous history)".bright_black());
     }
@@ -183,7 +183,7 @@ fn stdin_loop(
         }
     }
 
-    rl.save_history(HISTORY_FILE).unwrap();
+    rl.save_history(HISTORY_FILE)
 }
 
 fn send_line(line: &str, mut to_server: &TcpStream, debug: bool) {
