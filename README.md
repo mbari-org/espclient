@@ -76,6 +76,7 @@ See a quick demo [here](demo/index.md).
 
 ## Change log
 
+- 2023-06: just some dep updates
 - 2022-11-13: do various dep updates and set 2021 edition
 - 2022-09-17: fix #1 to address critical dependabot notification
 - 2022-01-27: general updates
@@ -88,5 +89,3 @@ See a quick demo [here](demo/index.md).
 
 - https://blog.burntsushi.net/rust-error-handling/#the-error-trait
 - https://github.com/jtenner/telnet_codec 
-- https://stjepang.github.io/2020/04/03/why-im-building-a-new-async-runtime.html
-  ... broken link now. See https://news.ycombinator.com/item?id=25521669

@@ -1,12 +1,12 @@
-# A convenient default for development: test and format
-default: test format
-
-# default + clippy; good to run before committing changes
-all: default clippy
-
 # List recipes
 list:
 	@just --list --unsorted
+
+# A convenient recipe for development: test and format
+dev: test format
+
+# dev + clippy; good to run before committing changes
+all: dev clippy
 
 # Run tests
 test:
