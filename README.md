@@ -50,24 +50,20 @@ Program usage:
 
 ```
 $ espclient --help
-espclient 1.0.0
 ESP Client in Rust
 
-USAGE:
-    espclient [FLAGS] [OPTIONS] <server>
+Usage: espclient [OPTIONS] <SERVER>
 
-FLAGS:
-    -d, --debug      Summarize raw socket traffic on STDERR
-    -h, --help       Prints help information
-    -s, --simple     Simple output (by default, show stream multiplexing explicitly)
-    -V, --version    Prints version information
+Arguments:
+  <SERVER>  host:port indicating the running ESP server to connect to
 
-OPTIONS:
-    -c, --cmd <cmd>      Command beginning interactive session [default: showlog 0]
-    -n, --name <name>    My name as client for ESP server's log [default: espclient.rs]
-
-ARGS:
-    <server>    host:port indicating the running ESP server
+Options:
+  -n, --name <NAME>  My name as client for ESP server's log [default: espclient.rs]
+  -c, --cmd <CMD>    Command beginning interactive session [default: "showlog 0"]
+  -s, --simple       Simple output (by default, show stream multiplexing explicitly)
+  -d, --debug        Summarize raw socket traffic on STDERR
+  -h, --help         Print help
+  -V, --version      Print version
 ```
 
 ---

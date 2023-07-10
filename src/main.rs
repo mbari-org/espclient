@@ -13,7 +13,6 @@ use rustyline::error::ReadlineError;
 use rustyline::{Editor, Result};
 
 use clap::Parser;
-use clap::StructOpt;
 
 use std::io::{self, Read, Write};
 use std::net::TcpStream;
@@ -24,28 +23,44 @@ use std::time::Duration;
 const PROMPT: &str = "-> ";
 const HISTORY_FILE: &str = "history.txt";
 
-#[derive(StructOpt, Debug)]
-#[structopt(global_setting(clap::AppSettings::ColoredHelp))]
+fn cli_styles() -> clap::builder::Styles {
+    use anstyle::{
+        AnsiColor::{self, *},
+        Color, Style,
+    };
+    fn style(color: AnsiColor) -> Style {
+        Style::new().bold().fg_color(Some(Color::Ansi(color)))
+    }
+    clap::builder::Styles::styled()
+        .usage(style(Yellow).underline())
+        .header(style(Yellow).underline())
+        .literal(style(Green))
+        .placeholder(style(Blue))
+}
+
+#[derive(Parser, Debug)]
 #[clap(version, about = "ESP Client in Rust", long_about = None)]
+#[command(styles=cli_styles())]
+// #[command(styles=clap::builder::Styles::styled())]
 struct Opts {
-    /// host:port indicating the running ESP server
-    #[structopt()]
+    /// host:port indicating the running ESP server to connect to
+    #[arg()]
     server: String,
 
     /// My name as client for ESP server's log
-    #[structopt(short, long, default_value = "espclient.rs")]
+    #[arg(short, long, default_value = "espclient.rs")]
     name: String,
 
     /// Command beginning interactive session
-    #[structopt(short, long, default_value = "showlog 0")]
+    #[arg(short, long, default_value = "showlog 0")]
     cmd: String,
 
     /// Simple output (by default, show stream multiplexing explicitly)
-    #[structopt(short, long)]
+    #[arg(short, long)]
     simple: bool,
 
     /// Summarize raw socket traffic on STDERR
-    #[structopt(short, long)]
+    #[arg(short, long)]
     debug: bool,
 }
 
