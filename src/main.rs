@@ -154,14 +154,14 @@ fn stdin_loop(
     to_server: &TcpStream,
     from_server_thread: thread::JoinHandle<()>,
 ) -> Result<()> {
-    let mut rl = Editor::<()>::new()?; // `()` can be used when no completer is required
+    let mut rl = Editor::<(), _>::new()?; // `()` can be used when no completer is required
     if rl.load_history(HISTORY_FILE).is_err() {
         println!("{}", "(no previous history)".bright_black());
     }
 
     send_line(&opts.name, to_server, opts.debug);
     if !opts.cmd.trim().is_empty() {
-        rl.add_history_entry(&opts.cmd);
+        let _ = rl.add_history_entry(&opts.cmd);
         send_line(&opts.cmd, to_server, opts.debug);
     }
 
@@ -175,7 +175,7 @@ fn stdin_loop(
                         exit("exiting...", done_sender, from_server_thread);
                         break;
                     } else {
-                        rl.add_history_entry(line);
+                        let _ = rl.add_history_entry(line);
                         send_line(line, to_server, opts.debug);
                     }
                 }

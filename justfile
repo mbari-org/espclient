@@ -8,6 +8,14 @@ dev: test format
 # dev + clippy; good to run before committing changes
 all: dev clippy
 
+# cargo watch
+watch *cmd='check':
+    cargo watch -c -x '{{ cmd }}'
+
+# cargo check
+check:
+    cargo check
+
 # Run tests
 test:
 	cargo test
