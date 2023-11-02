@@ -16,6 +16,10 @@ watch *cmd='check':
 check:
     cargo check
 
+# cargo clean
+clean:
+    cargo clean
+
 # Run tests
 test:
 	cargo test

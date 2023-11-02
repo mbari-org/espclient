@@ -10,7 +10,7 @@ use event::*;
 use bytes::{BufMut, BytesMut};
 use colored::Colorize;
 use rustyline::error::ReadlineError;
-use rustyline::{Editor, Result};
+use rustyline::{DefaultEditor, Result};
 
 use clap::Parser;
 
@@ -154,7 +154,7 @@ fn stdin_loop(
     to_server: &TcpStream,
     from_server_thread: thread::JoinHandle<()>,
 ) -> Result<()> {
-    let mut rl = Editor::<(), _>::new()?; // `()` can be used when no completer is required
+    let mut rl = DefaultEditor::new()?; // `()` can be used when no completer is required
     if rl.load_history(HISTORY_FILE).is_err() {
         println!("{}", "(no previous history)".bright_black());
     }
