@@ -2,9 +2,13 @@
 
 # ESP Client in Rust
 
-- What: An ESP client implementation in Rust.
+- What: This is an ESP client[^ESP] implementation in Rust.
 - Why: Practice some basic Rust socket programming.
 - How: Using standard Rust libraries for socket connection and some others.
+
+[^ESP]: Similar to the "espclient" program that is part of the
+[MBARI Environmental Sample Processor system](
+https://www.mbari.org/technology/environmental-sample-processor-esp/).
 
 ## Installing
 
@@ -72,6 +76,7 @@ See a quick demo [here](demo/index.md).
 
 ## Change log
 
+- 2025-02: maintenance update 
 - 2023-10: rustyline updated 
 - 2023-06: just some dep updates
 - 2022-11-13: do various dep updates and set 2021 edition
