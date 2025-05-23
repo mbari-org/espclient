@@ -76,6 +76,7 @@ See a quick demo [here](demo/index.md).
 
 ## Change log
 
+- 2025-05: bump clap 
 - 2025-02: maintenance update 
 - 2023-10: rustyline updated 
 - 2023-06: just some dep updates
