@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            bin_suffix: -linux-x86_64
+            ext: ''
+            use_cross: true
+
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            bin_suffix: -macos-x86_64
+            ext: ''
+            use_cross: false
+
+          - os: macos-14  # Apple Silicon (M1/M2+)
+            target: aarch64-apple-darwin
+            bin_suffix: -macos-aarch64
+            ext: ''
+            use_cross: false
+
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin_suffix: -windows-x86_64
+            ext: .exe
+            use_cross: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Cargo Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross (if needed)
+        if: matrix.use_cross == true
+        shell: bash
+        run: cargo install cross
+
+      - name: Build Binary
+        shell: bash
+        run: |
+          if [[ "${{ matrix.use_cross }}" == "true" ]]; then
+            cross build --release --target ${{ matrix.target }}
+          else
+            cargo build --release --target ${{ matrix.target }}
+          fi
+
+      - name: Show dependency tree
+        shell: bash
+        run: cargo tree --target ${{ matrix.target }} || true
+
+      - name: Rename Binary
+        shell: bash
+        run: |
+          mkdir -p dist
+          BIN=target/${{ matrix.target }}/release/espclient${{ matrix.ext }}
+          OUT=dist/espclient${{ matrix.bin_suffix }}${{ matrix.ext }}
+
+          echo "Looking for: $BIN"
+          ls -lh "$(dirname "$BIN")" || true
+
+          if [[ ! -f "$BIN" ]]; then
+            echo "❌ Binary not found: $BIN"
+            exit 1
+          fi
+
+          echo "✅ Found. Renaming to $OUT"
+          cp "$BIN" "$OUT"
+
+      - name: Strip Binary (non-Windows only)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: strip dist/espclient${{ matrix.bin_suffix }}
+
+      - name: Compress Binary
+        shell: bash
+        run: gzip -9 dist/espclient${{ matrix.bin_suffix }}${{ matrix.ext }}
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

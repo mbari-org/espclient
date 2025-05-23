@@ -36,6 +36,18 @@ format:
 clippy:
 	cargo clippy --all-targets -- -D warnings
 
+# List git tags
+tags:
+  git tag -l | sort -V | tail
+
+# Create and push git tag (calls tq)
+tag-and-push:
+  #!/usr/bin/env bash
+  version=$(tq -f Cargo.toml 'package.version')
+  echo "tagging and pushing v${version}"
+  git tag v${version}
+  git push origin v${version}
+
 # Build release
 release:
 	cargo build --release

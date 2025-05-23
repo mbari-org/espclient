@@ -164,7 +164,7 @@ checksum = "a5d9305ccc6942a704f4335694ecd3de2ea531b114ac2d51f5f843750787a92f"
 
 [[package]]
 name = "espclient"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
  "anstyle",
  "bytes",

@@ -1,6 +1,6 @@
 [package]
 name = "espclient"
-version = "1.0.4"
+version = "1.0.5"
 authors = ["Carlos A. Rueda <carueda@mbari.org>"]
 edition = "2021"
 
