@@ -12,6 +12,42 @@ https://www.mbari.org/technology/environmental-sample-processor-esp/).
 
 ## Installing
 
+You can install the executable program from the [GitHub releases page](
+https://github.com/mbari-org/espclient/releases) for your platform. 
+
+Alternatively, you can build the program from source.
+
+## Running
+
+Have an ESP server running somewhere and then launch the program indicating
+the corresponding `host:port`, for example:
+`espclient bufflehead.shore.mbari.org:7777` (see below).
+
+Program usage:
+
+```
+$ espclient --help
+ESP Client in Rust
+
+Usage: espclient [OPTIONS] <SERVER>
+
+Arguments:
+  <SERVER>  host:port indicating the running ESP server to connect to
+
+Options:
+  -n, --name <NAME>  My name as client for ESP server's log [default: espclient.rs]
+  -c, --cmd <CMD>    Command beginning interactive session [default: "showlog 0"]
+  -s, --simple       Simple output (by default, show stream multiplexing explicitly)
+  -d, --debug        Summarize raw socket traffic on STDERR
+  -h, --help         Print help
+  -V, --version      Print version
+```
+
+See a quick demo [here](demo/index.md).
+
+
+### Building from source
+
 With `cargo` on your system, you can install `espclient` directly from
 the repo as follows:
 
@@ -44,38 +80,11 @@ Common commands I run here (see [justfile](justfile)):
     just outdated
     just update
 
-## Running
-
-Have an ESP server running somewhere and then launch the program indicating
-the corresponding `host:port`, for example: 
-`espclient bufflehead.shore.mbari.org:7777` (see below).
-
-Program usage:
-
-```
-$ espclient --help
-ESP Client in Rust
-
-Usage: espclient [OPTIONS] <SERVER>
-
-Arguments:
-  <SERVER>  host:port indicating the running ESP server to connect to
-
-Options:
-  -n, --name <NAME>  My name as client for ESP server's log [default: espclient.rs]
-  -c, --cmd <CMD>    Command beginning interactive session [default: "showlog 0"]
-  -s, --simple       Simple output (by default, show stream multiplexing explicitly)
-  -d, --debug        Summarize raw socket traffic on STDERR
-  -h, --help         Print help
-  -V, --version      Print version
-```
-
 ---
-
-See a quick demo [here](demo/index.md).
 
 ## Change log
 
+- 2025-05: added release workflow
 - 2025-05: bump clap 
 - 2025-02: maintenance update 
 - 2023-10: rustyline updated 
